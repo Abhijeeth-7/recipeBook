@@ -1,0 +1,107 @@
+<div class="my-10px">
+  <div class="user-details-container">
+    <div class="user-img-and-stats">
+      <img class="user-image" [src]="userDetails.profileImageUrl" />
+    </div>
+    <div>
+      <div class="user-details">
+        <div class="user-bio">
+          <div class="d-flex align-items-baseline">
+            <h4>{{ userDetails.name }}</h4>
+            <i
+              *ngIf="isCurrentUserProfile"
+              class="bi bi-pencil-square bi-clickable ml-10px fs-18"
+              tooltip="Edit"
+              container="body"
+              containerClass="p-0"
+              (click)="openUserDetailsModal()"
+            >
+            </i>
+          </div>
+          <p>
+            {{ userDetails.bio }}
+          </p>
+        </div>
+
+        <div class="user-stats">
+          <div class="d-flex flex-column align-items-center">
+            <label>Likes</label>
+            <span class="bi bi-heart-fill fs-24 text-orangered"></span>
+            <label>{{ userDetails.totalLikes }}</label>
+          </div>
+          <div class="d-flex flex-column align-items-center mx-30px">
+            <label>Recipes</label>
+            <span class="bi bi-cloud-fog-fill fs-24 text-primary"></span>
+            <label>{{ userDetails.totalRecipes }}</label>
+          </div>
+        </div>
+      </div>
+      <nav class="user-navbar">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="recipes" routerLinkActive="active">
+              My Recipes
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="isCurrentUserProfile">
+            <a
+              class="nav-link"
+              routerLink="bookmarks"
+              routerLinkActive="active"
+            >
+              Bookmarks
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
+<div class="mt-10px h-90vh">
+  <router-outlet></router-outlet>
+</div>
+
+<ng-template #userDetailsModal>
+  <div class="modal-header">
+    <h6 class="m-0">Edit User Details</h6>
+    <span class="bi bi-x-lg ms-auto" (click)="closeModal()"></span>
+  </div>
+  <div class="modal-body">
+    <div
+      class="recipe-form"
+      [formGroup]="userDetailsForm"
+      *ngIf="userDetailsForm"
+    >
+      <div class="mb-20px">
+        <label class="mb-4px">Name</label>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="User Name ..."
+          formControlName="name"
+        />
+        <validation-message
+          [control]="userDetailsForm.get('name')!"
+          [validationMessages]="validationMessages['name']"
+          [isFormSubmitted]="isFormSubmitted"
+        ></validation-message>
+      </div>
+      <div class="mb-20px">
+        <label class="mb-4px">User Bio</label>
+        <textarea
+          class="form-control"
+          placeholder="This section is for you, so express yourself ..."
+          formControlName="bio"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-sm btn-secondary" (click)="closeModal()">
+      Cancel
+    </button>
+    <button class="btn btn-sm btn-primary" (click)="updateUserDetails()">
+      Update
+    </button>
+  </div>
+</ng-template>

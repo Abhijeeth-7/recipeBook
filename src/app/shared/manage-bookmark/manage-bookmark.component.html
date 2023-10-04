@@ -1,0 +1,38 @@
+<div class="modal-header">
+  <h5>Manage Bookmarks</h5>
+  <span class="bi bi-x-lg ms-auto" (click)="closeModal()"></span>
+</div>
+<div class="modal-body">
+  <div class="border p-3">
+    <ng-container
+      *ngFor="let collection of bookmark.collections; let i = index"
+    >
+      <div class="form-check d-flex">
+        <label class="form-check-label flex-grow-1" [for]="i">
+          {{ collection.name }}
+        </label>
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [checked]="collectionStatus[collection.name]"
+          [id]="i"
+          (change)="manageCollection($event, collection)"
+        />
+      </div>
+    </ng-container>
+  </div>
+</div>
+<div class="modal-footer">
+  <div class="ms-auto">
+    <button
+      class="btn btn-sm mr-10px"
+      [ngClass]="!!selectedCollectionsCount ? 'btn-primary' : 'btn-danger'"
+      (click)="updateCollections()"
+    >
+      {{ !!selectedCollectionsCount ? "Add To" : "Remove from" }} Collections
+    </button>
+    <button class="btn btn-sm btn-secondary" (click)="closeModal()">
+      Close
+    </button>
+  </div>
+</div>

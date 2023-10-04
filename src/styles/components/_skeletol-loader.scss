@@ -1,0 +1,21 @@
+.skeletol-loader {
+  animation: loading-shimmer 1s linear infinite 0s;
+}
+
+@mixin gradient($val) {
+  background: linear-gradient(
+    to right,
+    whitesmoke #{$val - 10}#{"%"},
+    rgb(235, 235, 235) #{$val}#{"%"} #{$val + 20}#{"%"},
+    whitesmoke #{$val + 40}#{"%"}
+  );
+}
+
+@keyframes loading-shimmer {
+  @for $val from 0 through 20 {
+    $val: ($val/20) * 100;
+    #{$val}#{"%"} {
+      @include gradient($val);
+    }
+  }
+}

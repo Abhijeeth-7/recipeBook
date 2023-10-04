@@ -1,0 +1,136 @@
+//margins
+$utilValues: 4, 8, 10, 20, 30, 40, 50;
+$utils: m, p;
+@each $val in $utilValues {
+  @each $util in $utils {
+    $propName: margin;
+    @if $util == p {
+      $propName: padding;
+    }
+    .#{$util}-#{$val}px {
+      #{$propName}: #{$val}px;
+    }
+    .#{$util}x-#{$val}px {
+      #{$propName}: 0 #{$val}px;
+    }
+    .#{$util}y-#{$val}px {
+      #{$propName}: #{$val}px 0;
+    }
+    .#{$util}t-#{$val}px {
+      #{$propName}-top: #{$val}px;
+    }
+    .#{$util}b-#{$val}px {
+      #{$propName}-bottom: #{$val}px;
+    }
+    .#{$util}l-#{$val}px {
+      #{$propName}-left: #{$val}px;
+    }
+    .#{$util}r-#{$val}px {
+      #{$propName}-right: #{$val}px;
+    }
+  }
+}
+
+//font-size
+$font-sizes: 10, 12, 16, 18, 20, 24, 28, 32;
+@each $val in $font-sizes {
+  .fs-#{$val} {
+    font-size: #{$val}px;
+  }
+}
+
+//widths in pixels
+$width: 25, 120, 50;
+@each $val in $width {
+  .w-#{$val}px {
+    width: #{$val}px;
+  }
+}
+
+.w-90 {
+  width: 90%;
+}
+
+//text-colors
+.text-orangered {
+  color: orangered !important;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.no-resize {
+  resize: none;
+}
+
+.h-90vh {
+  height: calc(100vh - 80px);
+}
+
+.text-truncate-3 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+div:has(.text-truncate) {
+  min-width: 0;
+}
+
+label:has(+ .form-control) {
+  font-size: 18px;
+}
+
+.form-control-sm {
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.bi-clickable {
+  position: relative;
+  cursor: pointer;
+
+  &:hover {
+    transition: transform 150ms ease;
+    transform-origin: center;
+    transform: scale(1.25) translateY(-2px);
+    filter: drop-shadow(-2px 2px 2px rgba(0, 0, 0, 0.4));
+  }
+
+  &::after {
+    box-sizing: content-box;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  &:active::after {
+    animation: ripple 300ms ease-out, ripple 10ms linear 5ms,
+      ripple 10ms linear 15ms;
+  }
+}
+
+.btn,
+.btn-3d {
+  box-shadow: -4px 4px #25252571;
+  transition: all 150ms ease;
+  transform: translate(4px, -4px);
+
+  &:hover {
+    transform: unset;
+    box-shadow: unset;
+  }
+}

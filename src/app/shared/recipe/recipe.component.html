@@ -1,0 +1,212 @@
+<div class="recipes-container">
+  <div
+    *ngIf="(isMobileView && isRecipeListShown) || !isMobileView"
+    class="left-container"
+  >
+    <div class="filters-container">
+      <input
+        type="text"
+        placeholder="Search Recipes Here..."
+        class="search-input"
+        #searchInput
+      />
+      <div class="d-flex justify-content-between mt-10px gap-3">
+        <div class="sort-selector" (click)="toggleSort()">
+          <span class="bi bi-arrow-down-up"></span>
+          <label class="ml-10px text-truncate">
+            {{ isSortedAscending ? "Least" : "Most" }} popular first
+          </label>
+        </div>
+
+        <select
+          [(ngModel)]="selectedTime"
+          (ngModelChange)="filterRecipesByTime()"
+          class="form-select-sm"
+        >
+          <option
+            *ngFor="let option of TimeFilterOptions"
+            [value]="option.value"
+            class="option"
+          >
+            {{ option.title }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div
+      class="recipe-list-container"
+      infiniteScroll
+      [infiniteScrollDistance]="4"
+      [infiniteScrollThrottle]="300"
+      [scrollWindow]="false"
+      (scrolled)="getRecipes()"
+    >
+      <div
+        class="recipe-card"
+        *ngFor="let recipe of filteredRecipeList"
+        [class.recipe-card-selected]="recipeDetail?.id == recipe.id"
+        (click)="openRecipeDetails(recipe.id)"
+      >
+        <img class="card-img" [src]="recipe.imageUrl" />
+
+        <div class="card-content">
+          <div class="d-flex align-items-center w-100">
+            <h6 class="fs-16 text-truncate">{{ recipe.title }}</h6>
+            <i
+              class="bi fs-20 ms-auto"
+              [ngClass]="
+                recipe.isBookmarked ? 'bi-bookmark-fill' : 'bi-bookmark'
+              "
+            ></i>
+          </div>
+          <div class="d-flex w-100">
+            <div class="d-flex align-items-center w-50">
+              <span class="bi bi-clock fs-20 mr-8px"></span>
+              <span class="text-truncate">
+                {{ recipe.timeInMinutes | time }}
+              </span>
+            </div>
+            <div class="d-flex align-items-center">
+              <span class="bi bi-heart-fill text-orangered fs-20 mr-8px"></span>
+              <span class="text-truncate">{{ recipe.likes }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="right-container"
+    *ngIf="
+      ((isMobileView && !isRecipeListShown) || !isMobileView) && recipeDetail
+    "
+  >
+    <button
+      *ngIf="isMobileView"
+      class="btn btn-sm btn-secondary my-10px"
+      (click)="toggleRecipeListView()"
+    >
+      Go back to Recipes
+    </button>
+    <div class="recipe-detail-container">
+      <div class="d-flex">
+        <div>
+          <h1>
+            {{ recipeDetail.title }}
+          </h1>
+          <div
+            class="d-flex mb-10px align-items-center cursor-pointer"
+            [routerLink]="['/user', recipeDetail.authorId]"
+          >
+            <span>by {{ authorName }}</span>
+            <img
+              class="rounded-circle ml-8px"
+              [src]="authorImgUrl"
+              width="20px"
+              height="20px"
+            />
+          </div>
+        </div>
+        <div
+          class="ms-auto"
+          *ngIf="recipeDetail.authorId == currentUser.userId"
+        >
+          <button class="btn btn-sm btn-primary mr-10px" (click)="editRecipe()">
+            Edit
+          </button>
+          <button class="btn btn-sm btn-danger" (click)="deleteRecipe()">
+            Delete
+          </button>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="d-flex align-items-center">
+          <span class="bi bi-clock fs-20 mr-10px"></span>
+          <span>{{ recipeDetail.timeInMinutes | time }}</span>
+        </div>
+        <div class="d-flex align-items-center mx-20px">
+          <span
+            #likeButton
+            class="bi bi-clickable text-orangered fs-20 mr-10px"
+            [ngClass]="isliked ? 'bi-heart-fill' : 'bi-heart'"
+          ></span>
+          <span>{{ recipeDetail.likes }}</span>
+        </div>
+        <div class="d-flex align-items-center">
+          <span
+            class="bi bi-bookmark-plus bi-clickable fs-20"
+            (click)="openAddToBookmarkModal()"
+          ></span>
+        </div>
+      </div>
+      <div class="my-10px">
+        <p>{{ recipeDetail.description }}</p>
+      </div>
+      <div class="recipe-section-col-2">
+        <img class="recipe-img" [src]="recipeDetail.imageUrl" />
+        <div class="recipe-ingredients-section">
+          <div class="my-10px">
+            <h4 class="text-center">
+              {{ recipeDetail.ingredients.length }} Ingredients
+            </h4>
+            <div class="d-flex align-items-center justify-content-center">
+              <i class="bi bi-people-fill mr-10px"></i>
+              <span class="mr-10px">serves</span>
+              <span
+                class="bi bi-dash-circle bi-clickable"
+                (click)="decreaseServings()"
+              ></span>
+
+              <span class="mx-10px"> {{ recipeDetail.servings }}</span>
+              <span
+                class="bi bi-plus-circle bi-clickable"
+                (click)="increaseServings()"
+              ></span>
+            </div>
+          </div>
+          <div class="recipe-ingredients-container">
+            <ng-container
+              *ngFor="let ingredient of recipeDetail.ingredients; let i = index"
+            >
+              <div
+                class="recipe-ingredient"
+                [ngClass]="{
+                  'text-decoration-line-through': ingredient.isChecked
+                }"
+                (click)="ingredient.isChecked = !ingredient.isChecked"
+              >
+                <i
+                  class="bi bi-clickable mx-10px"
+                  [class.bi-check-circle-fill]="ingredient.isChecked"
+                  [class.bi-circle]="!ingredient.isChecked"
+                ></i>
+                <span
+                  class="text-truncate"
+                  [tooltip]="ingredient.name + ' ' + ingredient.quantity"
+                  container="body"
+                  placement="top"
+                  [adaptivePosition]="false"
+                  containerClass="p-0"
+                >
+                  {{ ingredient.quantity }} {{ ingredient.name }}
+                </span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+      <div class="recipe-steps-container vertical-stepper recipe-section">
+        <h4 class="mb-20px">Directions</h4>
+        <div
+          class="recipe-step vertical-step"
+          *ngFor="let step of recipeDetail.steps"
+        >
+          <span class="step-number">Step {{ step.seqNumber }}</span>
+          <p class="step-details">
+            {{ step.description }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

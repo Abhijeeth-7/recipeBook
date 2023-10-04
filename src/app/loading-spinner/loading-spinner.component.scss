@@ -1,0 +1,22 @@
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  z-index: 999999;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  // pointer-events: none;
+}
+
+.spinner {
+  width: 5rem;
+  height: 5rem;
+  border: 0.5rem solid #ffac13;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  outline: 4px solid #ffac13;
+  outline-offset: 4px;
+}
