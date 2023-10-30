@@ -24,6 +24,7 @@
     "firebaseui": "^6.1.0",
     "ngx-bootstrap": "^11.0.2",
     "ngx-infinite-scroll": "^16.0.0",
+    "ngx-skeleton-loader": "^8.1.0",
     "ngx-toastr": "^17.0.2",
     "rxfire": "^6.0.0",
     "rxjs": "^7.8.1",

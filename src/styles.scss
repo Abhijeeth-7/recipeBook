@@ -128,15 +128,15 @@
 .sort-selector {
   display: flex;
   align-items: center;
-  margin: 2px 0;
+  margin: 2px 0 2px 4px;
   padding: 4px 8px;
   border-radius: 4px;
-  box-shadow: -4px 4px #d9d9d9;
+  box-shadow: 4px 4px #47474771;
   background-color: #ffc107;
   font-size: 0.87rem;
   cursor: pointer;
   transition: all 150ms ease;
-  transform: translate(4px, -4px);
+  transform: translate(-4px, -4px);
 
   & * {
     user-select: none;
@@ -171,7 +171,7 @@
 }
 
 .body {
-  background: url("assets/background.png") no-repeat;
+  background: url("assets/background-light.png") no-repeat;
   background-size: cover;
   background-attachment: fixed;
   color: #03383f;

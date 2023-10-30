@@ -27,6 +27,7 @@ export class BookmarkComponent implements OnInit {
   isAddingCollection: boolean = false;
   editingCollectionAt: number | null = null;
   selectedRecipeIds: string[] = [];
+  isRequestInProgress = false;
 
   constructor(
     private bookmarkService: BookmarkService,
@@ -43,12 +44,17 @@ export class BookmarkComponent implements OnInit {
   }
 
   getBookmarks(userId: string) {
+    this.isRequestInProgress = true;
     this.bookmarkService.getBookmark(userId).subscribe((bookmark) => {
       if (bookmark.userId) {
         this.bookmark = new Bookmark(bookmark);
-        return;
+      } else {
+        this.bookmark = new Bookmark({
+          bookmarkId: bookmark.bookmarkId,
+          userId,
+        });
       }
-      this.bookmark = new Bookmark({ bookmarkId: bookmark.bookmarkId, userId });
+      this.isRequestInProgress = false;
     });
   }
 

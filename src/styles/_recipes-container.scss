@@ -25,7 +25,6 @@
     padding: 10px;
     height: 100%;
     overflow-y: auto;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 
     & .recipe-card {
       flex: 100%;
@@ -35,16 +34,16 @@
       box-shadow: 0px 0px 10px -2px #c7c7c7;
       padding: 10px 6px;
       margin: 4px 0px;
+      border: 1px solid #dddddd;
       border-radius: 4px;
       cursor: pointer;
       transition: all 150ms ease-out;
 
       &:hover,
       &-selected {
-        border-right: 4px solid #ffbf48;
-        box-shadow: 0px 2px 8px rgba(70, 70, 70, 0.4);
-        transform-origin: left;
-        transform: scale(1.02) translateY(-2px);
+        border-bottom: 4px solid #ffbf48;
+        transform-origin: center;
+        transform: scale(1.005) translateY(-2px);
       }
 
       &:active {
@@ -54,7 +53,7 @@
       .card-img {
         width: 100%;
         height: 150px;
-        object-fit: cover;
+        object-fit: scale-down;
       }
 
       .card-content {
@@ -73,7 +72,7 @@
 
       .recipe-card {
         flex: 0 49%;
-        background: linear-gradient(to right, #ffbf48 20%, transparent 20%);
+        // background: linear-gradient(to right, #ffbf48 20%, transparent 20%);
 
         .recipe-img {
           object-fit: scale-down;
@@ -93,7 +92,7 @@
       & .card-img {
         width: 70px !important;
         height: 70px !important;
-        border-radius: 1rem;
+        border-radius: 4px;
         margin: 0 10px;
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.05);
       }
@@ -115,15 +114,15 @@
   flex-direction: column;
 
   .recipe-detail-container {
-    // flex: 1;
+    flex: 1;
     border: 1px;
     border-radius: 4px;
     padding: 12px 8px;
     overflow-y: auto;
-    border: 1px solid $gray-500;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+    // box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
 
-    // background: linear-gradient(transparent 50%, #ffbf48 50% 90%, #fdf2cc 90%);
+    // background: white;
+    background: linear-gradient(transparent 50%, #ffbf48 50% 90%, #fdf2cc 90%);
     backdrop-filter: blur(10px);
 
     .recipe-section-col-2 {
@@ -141,7 +140,7 @@
       padding: 20px 30px;
       margin-top: 20px;
       background: #fbfaf4;
-      box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.4);
     }
 
     .recipe-img {
@@ -149,19 +148,21 @@
       width: 100%;
       height: 350px;
       border-radius: 4px;
-      box-shadow: 4px 4px 8px 0px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.4);
     }
 
     .recipe-ingredients-section {
       height: 350px;
       display: flex;
       flex-direction: column;
+      align-items: center;
       background: #fbfaf4;
-      box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.4);
+      box-shadow: 2px 2px 8px 0px rgba(0, 0, 0, 0.4);
 
       .recipe-ingredients-container {
         flex: 1;
         overflow-y: auto;
+        margin-top: 10px;
         padding: 4px 16px;
 
         .recipe-ingredient {
@@ -175,7 +176,6 @@
       display: block;
       padding: 20px 40px;
       margin-left: 20px;
-      // box-shadow: 0px 0px 2px 0px rgba(0, 0, 0, 0.2);
     }
   }
 }

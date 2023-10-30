@@ -123,13 +123,22 @@ label:has(+ .form-control) {
   }
 }
 
+.nav-button {
+  margin: 8px;
+}
+
 .btn,
 .btn-3d {
-  box-shadow: -4px 4px #25252571;
+  box-shadow: 4px 4px #47474771;
   transition: all 150ms ease;
-  transform: translate(4px, -4px);
+  transform: translate(-4px, -4px);
+  margin-left: 4px;
 
   &:hover {
+    box-shadow: 4px 4px #000;
+  }
+
+  &:active {
     transform: unset;
     box-shadow: unset;
   }

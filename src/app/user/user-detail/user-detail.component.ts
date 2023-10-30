@@ -8,6 +8,7 @@ import { UserRecipeService } from 'src/app/services/user-recipe.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, Subject, of } from 'rxjs';
 
 @Component({
   selector: 'app-user-detail',
@@ -23,7 +24,6 @@ import { ToastrService } from 'ngx-toastr';
 export class UserDetailComponent implements OnInit {
   userDetails: any;
   currentUser: any;
-  isCurrentUserProfile = false;
   userDetailsForm: FormGroup = new FormGroup({});
   isFormSubmitted: boolean = false;
   @ViewChild('userDetailsModal') userDetailsModal: any;
@@ -60,8 +60,6 @@ export class UserDetailComponent implements OnInit {
   getUserDetails(userId: string) {
     this.userDetailService.getUserByAppId(userId).subscribe((data) => {
       this.userDetails = data;
-      this.isCurrentUserProfile =
-        this.userDetails.userId == this.currentUser.userId;
     });
   }
 
@@ -98,5 +96,9 @@ export class UserDetailComponent implements OnInit {
 
   closeModal() {
     this.modalRef!.hide();
+  }
+
+  get isCurrentUserProfile() {
+    return this.userDetails?.userId == this.currentUser?.userId;
   }
 }

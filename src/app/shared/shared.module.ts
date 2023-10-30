@@ -15,6 +15,10 @@ import { ManageBookmarkComponent } from './manage-bookmark/manage-bookmark.compo
 import { ValidationMessageComponent } from './validation-message/validation-message.component';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { RouterModule } from '@angular/router';
+import {
+  NgxSkeletonLoaderComponent,
+  NgxSkeletonLoaderModule,
+} from 'ngx-skeleton-loader';
 
 @NgModule({
   declarations: [
@@ -36,6 +40,7 @@ import { RouterModule } from '@angular/router';
     ToastrModule.forRoot(),
     BsDropdownModule.forRoot(),
     InfiniteScrollModule,
+    NgxSkeletonLoaderModule,
     RouterModule,
   ],
   exports: [
@@ -48,6 +53,7 @@ import { RouterModule } from '@angular/router';
     BsDropdownModule,
     InfiniteScrollModule,
     ValidationMessageComponent,
+    NgxSkeletonLoaderComponent,
     TooltipModule,
   ],
   providers: [

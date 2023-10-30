@@ -13,7 +13,6 @@
     width: 150px;
     height: 150px;
     object-fit: cover;
-    box-shadow: 2px 2px 8px rgba($color: #000000, $alpha: 0.2);
   }
 
   & .user-details {
@@ -42,24 +41,38 @@
       display: flex;
       flex-direction: row;
       justify-content: space-evenly;
-      // padding: 0 10px;
       gap: 20px;
 
       & .nav-item {
         font-size: 14px;
+        position: relative;
 
         & .nav-link {
           cursor: pointer;
-          border-radius: 4px;
           padding: 8px;
 
           &:hover {
+            border-radius: 4px;
             background-color: #ffc107;
           }
         }
 
         .active {
-          background-color: #ffc107;
+          // box-shadow: 0 2px 0 #ffc107;
+          &::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 12px;
+            background-color: #ffc107;
+            clip-path: polygon(50% 0, 0 100%, 100% 100%);
+
+            // clip-path: polygon(100% 0, 0 0, 50% 100%);
+          }
         }
       }
     }

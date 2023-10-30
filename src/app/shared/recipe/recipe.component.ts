@@ -134,8 +134,8 @@ export class RecipeComponent implements OnInit, AfterViewInit {
   }
 
   setUpMediaChangeListener() {
-    const breakpoint = window.matchMedia('(max-width: 850px)');
-    this.isMobileView = window.innerWidth < 850;
+    const breakpoint = window.matchMedia('(max-width: 849px)');
+    this.isMobileView = window.innerWidth <= 850;
 
     // Listen for changes
     breakpoint.addEventListener('change', (event) => {
@@ -146,6 +146,7 @@ export class RecipeComponent implements OnInit, AfterViewInit {
 
   toggleRecipeListView() {
     this.isRecipeListShown = !this.isRecipeListShown;
+    this.recipeDetail = undefined;
   }
 
   userBookmarks() {
@@ -208,7 +209,10 @@ export class RecipeComponent implements OnInit, AfterViewInit {
   setLikeButtomDebounce(ref: ElementRef) {
     fromEvent(ref.nativeElement, 'click')
       .pipe(
-        tap((_) => (this.isliked = !this.isliked)),
+        tap((_) => {
+          this.isliked = !this.isliked;
+          this.recipeDetail!.likes += 1 * (this.isliked ? 1 : -1);
+        }),
         debounceTime(1000)
       )
       .subscribe((_) => {
@@ -226,14 +230,13 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         )
         .subscribe((docRef) => {
           this.likeId = docRef?.id;
-          this.recipeDetail!.likes++;
         });
     } else if (this.likeId) {
       this.likeService
         .removeLike(this.likeId, this.recipeDetail?.id!)
         .subscribe((result) => {
-          this.recipeDetail!.likes--;
           this.likeId = null;
+          this.recipeDetail!.likes++;
         });
     }
   }
@@ -340,8 +343,8 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         onConfirm: (args: any) => {
           this.recipieService
             .deleteRecipe(this.recipeDetail?.id!, this.recipeDetail?.imageUrl!)
-            .subscribe(
-              (res) => {
+            .subscribe({
+              next: (res) => {
                 this.recipeList = this.recipeList.filter(
                   (r) => r.id !== this.recipeDetail?.id
                 );
@@ -354,13 +357,13 @@ export class RecipeComponent implements OnInit, AfterViewInit {
                   'Recipe deleted succefully'
                 );
               },
-              (error) => {
+              error: (error) => {
                 this.toastrService.error(
                   'Error',
                   'Error while deleting the recipe, Try again'
                 );
-              }
-            );
+              },
+            });
         },
       },
     };

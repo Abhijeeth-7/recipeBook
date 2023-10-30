@@ -1,124 +1,132 @@
 <div>
   <ng-container *ngIf="!selectedCollection">
-    <h4 class="mt-20px ml-10px">Bookmarks</h4>
+    <div class="d-flex justify-content-between align-items-center">
+      <h4 class="mt-20px ml-10px">Bookmarks</h4>
+      <button class="btn btn-sm btn-primary" (click)="addNewCollection()">
+        <i class="bi bi-plus-circle mx-4px"></i>
+        <span>Create collection</span>
+      </button>
+    </div>
     <div class="collections-grid">
-      <ng-container
-        *ngFor="
-          let collection of bookmark?.collections;
-          let i = index;
-          let last = last
-        "
-      >
-        <div
-          class="card p-2 m-10px text-center"
-          (click)="viewCollection(collection)"
-        >
-          <div
-            class="ms-auto"
-            *ngIf="editingCollectionAt != i"
-            dropdown
-            container="body"
-          >
-            <span
-              class="bi bi-three-dots-vertical bi-clickable"
-              dropdownToggle
-              aria-controls="bookmark-option-dropdown"
-            >
-            </span>
-            <ul
-              id="bookmark-option-dropdown"
-              *dropdownMenu
-              class="dropdown-menu"
-            >
-              <li (click)="updateCollectionName(i)" class="dropdown-item">
-                Edit
-              </li>
-              <li
-                (click)="openConfirmationModal(collection)"
-                class="dropdown-item"
-              >
-                Delete
-              </li>
-            </ul>
-          </div>
-          <div>
-            <ng-container
-              *ngIf="editingCollectionAt == i"
-              (click)="$event.stopPropagation()"
-            >
+      <ng-container *ngIf="!isRequestInProgress; else bookmarkCardShimmer">
+        <div class="card p-2 m-10px text-center">
+          <div class="my-auto">
+            <ng-container *ngIf="isAddingCollection">
               <div>
-                <p>Edit Collection Name</p>
+                <p>Add New Collection</p>
                 <input
                   type="text"
                   class="form-control-sm"
+                  placeholder="Collection Name"
+                  title="press enter to add the collection"
                   [(ngModel)]="newCollectionName"
-                  (keydown.enter)="editCollectionName(collection)"
                 />
               </div>
               <button
                 class="btn btn-sm btn-primary mt-10px mr-10px"
-                (click)="
-                  editCollectionName(collection); $event.stopPropagation()
-                "
+                (click)="createNewCollection()"
               >
-                Update
+                Add
               </button>
               <button
                 class="btn btn-sm btn-secondary mt-10px"
-                (click)="editingCollectionAt = null; $event.stopPropagation()"
+                (click)="isAddingCollection = false"
               >
                 Discard
               </button>
             </ng-container>
-            <ng-container *ngIf="editingCollectionAt != i">
-              <p>
-                {{ collection.name }}
-              </p>
-              <p>{{ collection.recipeCount }}</p>
+            <ng-container *ngIf="!isAddingCollection">
+              <span
+                class="bi bi-plus-circle bi-clickable fs-24"
+                (click)="addNewCollection()"
+              ></span>
+              <p>Add new Collection</p>
             </ng-container>
           </div>
         </div>
-      </ng-container>
-      <div class="card p-2 m-10px text-center">
-        <div class="my-auto">
-          <ng-container *ngIf="isAddingCollection">
-            <div>
-              <p>Add New Collection</p>
-              <input
-                type="text"
-                class="form-control-sm"
-                placeholder="Collection Name"
-                title="press enter to add the collection"
-                [(ngModel)]="newCollectionName"
-              />
+        <ng-container
+          *ngFor="
+            let collection of bookmark?.collections;
+            let i = index;
+            let last = last
+          "
+        >
+          <div
+            class="card p-2 m-10px text-center"
+            (click)="viewCollection(collection)"
+          >
+            <div
+              class="ms-auto"
+              *ngIf="editingCollectionAt != i"
+              dropdown
+              container="body"
+            >
+              <span
+                class="bi bi-three-dots-vertical bi-clickable"
+                dropdownToggle
+                aria-controls="bookmark-option-dropdown"
+              >
+              </span>
+              <ul
+                id="bookmark-option-dropdown"
+                *dropdownMenu
+                class="dropdown-menu"
+              >
+                <li (click)="updateCollectionName(i)" class="dropdown-item">
+                  Edit
+                </li>
+                <li
+                  (click)="openConfirmationModal(collection)"
+                  class="dropdown-item"
+                >
+                  Delete
+                </li>
+              </ul>
             </div>
-            <button
-              class="btn btn-sm btn-primary mt-10px mr-10px"
-              (click)="createNewCollection()"
-            >
-              Add
-            </button>
-            <button
-              class="btn btn-sm btn-secondary mt-10px"
-              (click)="isAddingCollection = false"
-            >
-              Discard
-            </button>
-          </ng-container>
-          <ng-container *ngIf="!isAddingCollection">
-            <span
-              class="bi bi-plus-circle bi-clickable fs-24"
-              (click)="addNewCollection()"
-            ></span>
-            <p>Add new Collection</p>
-          </ng-container>
-        </div>
-      </div>
+            <div>
+              <ng-container
+                *ngIf="editingCollectionAt == i"
+                (click)="$event.stopPropagation()"
+              >
+                <div>
+                  <p>Edit Collection Name</p>
+                  <input
+                    type="text"
+                    class="form-control-sm"
+                    [(ngModel)]="newCollectionName"
+                    (keydown.enter)="editCollectionName(collection)"
+                  />
+                </div>
+                <button
+                  class="btn btn-sm btn-primary mt-10px mr-10px"
+                  (click)="
+                    editCollectionName(collection); $event.stopPropagation()
+                  "
+                >
+                  Update
+                </button>
+                <button
+                  class="btn btn-sm btn-secondary mt-10px"
+                  (click)="editingCollectionAt = null; $event.stopPropagation()"
+                >
+                  Discard
+                </button>
+              </ng-container>
+              <ng-container *ngIf="editingCollectionAt != i">
+                <p>
+                  {{ collection.name }}
+                </p>
+                <p>{{ collection.recipeCount }}</p>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
     </div>
   </ng-container>
   <div class="h-90vh" *ngIf="selectedCollection">
     <button
-      class="btn btn-sm btn-outline-secondary"
+      class="btn btn-sm btn-secondary"
       (click)="selectedCollection = null"
     >
       <i class="bi bi-arrow-left"></i> Go back to bookmarks
@@ -126,3 +134,22 @@
     <app-recipe [recipeIds]="selectedRecipeIds"></app-recipe>
   </div>
 </div>
+
+<ng-template #bookmarkCardShimmer>
+  <ng-container *ngFor="let item of [1, 2, 3, 4]">
+    <div class="card p-2 m-10px text-center">
+      <ngx-skeleton-loader
+        class="d-block mt-30px"
+        animation="progress-dark"
+        [theme]="{ width: '200px', 'border-radius': '0', height: '15px' }"
+      >
+      </ngx-skeleton-loader>
+      <ngx-skeleton-loader
+        class="d-block"
+        animation="progress-dark"
+        [theme]="{ width: '170px', 'border-radius': '0', height: '15px' }"
+      >
+      </ngx-skeleton-loader>
+    </div>
+  </ng-container>
+</ng-template>

@@ -21,10 +21,13 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav w-100">
             <ng-container *ngIf="isLoggedIn$ | async">
-              <li class="nav-item ms-lg-auto">
-                <a class="nav-link" (click)="openAddRecipeModal()">
+              <li class="nav-item mx-lg-auto">
+                <button
+                  class="btn btn-sm btn-primary nav-button"
+                  (click)="openAddRecipeModal()"
+                >
                   <i class="bi bi-plus-circle mr-4px"></i>Add Recipe
-                </a>
+                </button>
               </li>
 
               <li class="nav-item dropdown">
@@ -64,7 +67,7 @@
             </ng-container>
             <ng-container *ngIf="!(isLoggedIn$ | async)">
               <li class="nav-item ms-auto">
-                <a class="nav-link">LogIn</a>
+                <a class="nav-link">Log In</a>
               </li>
             </ng-container>
           </ul>

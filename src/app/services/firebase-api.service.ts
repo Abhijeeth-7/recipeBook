@@ -82,7 +82,6 @@ export class FirebaseAPiService {
   }
 
   getDocs<T = any>(query: Query<DocumentData>): Observable<T[]> {
-    this.loaderService.showLoader();
     return from(getDocs(query)).pipe(
       first(),
       map((refs) => {
@@ -91,15 +90,13 @@ export class FirebaseAPiService {
           (doc) => Object.assign({ id: doc.id }, doc.data()) as T
         );
         return docs;
-      }),
-      tap((_) => this.loaderService.hideLoader())
+      })
     );
   }
 
   getDocsUsingPagination<T = any>(
     query: Query<DocumentData>
   ): Observable<PaginatedResult<T>> {
-    this.loaderService.showLoader();
     return from(getDocs(query)).pipe(
       first(),
       map((refs) => {
@@ -110,8 +107,7 @@ export class FirebaseAPiService {
           data: docs,
           lastDocRef: refs.docs[refs.size - 1],
         };
-      }),
-      tap((_) => this.loaderService.hideLoader())
+      })
     );
   }
 
