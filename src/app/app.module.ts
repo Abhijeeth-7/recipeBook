@@ -21,7 +21,12 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, LoginComponent, LoadingSpinnerComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    LoginComponent,
+    LoadingSpinnerComponent,
+  ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

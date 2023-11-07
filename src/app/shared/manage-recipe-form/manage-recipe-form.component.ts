@@ -77,6 +77,7 @@ export class ManageRecipeFormComponent implements OnInit {
       required: 'Quantity is required',
       min: 'Quantity cannot be negative',
       minlength: 'Quantity should be greater than zero',
+      pattern: 'Atleast one numeric value is required',
     },
     step: {
       required: 'Instruction cannot be empty',
@@ -161,7 +162,7 @@ export class ManageRecipeFormComponent implements OnInit {
       name: [ingredient ? ingredient.name : '', Validators.required],
       quantity: [
         ingredient ? ingredient.quantity : '',
-        [Validators.required, Validators.min(1)],
+        [Validators.required, Validators.min(1), Validators.pattern('[0-9]+')],
       ],
     });
 

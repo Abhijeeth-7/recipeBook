@@ -44,6 +44,7 @@ export class AppComponent implements OnInit {
   openAddRecipeModal() {
     this.bsModalService.show(ManageRecipeFormComponent, {
       class: 'modal-800',
+      ignoreBackdropClick: true,
       initialState: {
         userId: this.userId,
         onSave: (newRecipe) => {},

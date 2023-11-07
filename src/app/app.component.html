@@ -1,7 +1,7 @@
 <div>
   <div>
-    <nav class="navbar navbar-expand-lg w-90 mx-auto">
-      <div class="container-fluid mx-2">
+    <nav class="navbar navbar-expand-sm w-90 mx-auto">
+      <div class="container-fluid">
         <a class="navbar-brand" href="#">
           <img src="assets/recipe-book-logo.png" width="30px" />
           Recipe Book
@@ -19,9 +19,9 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav w-100">
+          <ul class="navbar-nav align-items-center w-100">
             <ng-container *ngIf="isLoggedIn$ | async">
-              <li class="nav-item mx-lg-auto">
+              <li class="nav-item mx-sm-auto">
                 <button
                   class="btn btn-sm btn-primary nav-button"
                   (click)="openAddRecipeModal()"
@@ -66,7 +66,7 @@
               </li>
             </ng-container>
             <ng-container *ngIf="!(isLoggedIn$ | async)">
-              <li class="nav-item ms-auto">
+              <li class="nav-item ms-md-auto">
                 <a class="nav-link">Log In</a>
               </li>
             </ng-container>

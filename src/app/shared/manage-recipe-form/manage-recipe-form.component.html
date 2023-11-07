@@ -1,9 +1,7 @@
 <div class="d-flex flex-column max-h-100vh">
-  <div class="modal-header">
-    <div class="d-flex justify-content-between align-items-center w-100">
-      <h5>{{ !!recipeId ? "Edit" : "Add" }} Recipe</h5>
-      <span class="bi bi-x-lg bi-clickable" (click)="cancel()"></span>
-    </div>
+  <div class="modal-header align-items-baseline">
+    <h5>{{ !!recipeId ? "Edit" : "Add" }} Recipe</h5>
+    <span class="bi bi-x-lg bi-clickable ms-auto" (click)="cancel()"></span>
   </div>
   <div class="modal-body overflow-auto">
     <div class="recipe-form" [formGroup]="recipeForm" *ngIf="recipeForm">
@@ -43,7 +41,7 @@
               class="img-upload-control"
               [class.show-overlay]="!!recipeForm.get('imageUrl')!.value"
               formControlName="imageUrl"
-              requireFiletype="jpg"
+              [requiredFileType]="'.jpg, .jpeg'"
             ></app-file-upload>
           </div>
 
@@ -156,7 +154,7 @@
             <div class="d-flex flex-column flex-grow-1">
               <input
                 type="text"
-                placeholder="Quantity"
+                placeholder="Quantity (200 gms)"
                 formControlName="quantity"
                 class="form-control"
               />
@@ -178,7 +176,7 @@
           </span>
         </li>
       </ul>
-      <div class="d-flex justify-content-center">
+      <div class="mt-10px text-center">
         <button class="btn btn-primary btn-sm" (click)="addIngredient()">
           <span class="bi bi-plus-circle"></span>
           Add Ingredinet
@@ -190,7 +188,7 @@
         formArrayName="steps"
         *ngIf="steps.length"
       >
-        <h4 class="text-center">Directions</h4>
+        <h4 class="text-center mb-20px">Directions</h4>
         <div
           class="recipe-step vertical-step"
           *ngFor="let step of steps.controls; let formIndex = index"
@@ -224,7 +222,7 @@
         </div>
       </div>
 
-      <div class="d-flex justify-content-center">
+      <div class="mt-10px text-center">
         <button class="btn btn-primary btn-sm" (click)="addRecipeStep()">
           <span class="bi bi-plus-circle"></span>
           Add step

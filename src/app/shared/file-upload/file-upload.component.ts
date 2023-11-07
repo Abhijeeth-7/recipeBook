@@ -41,7 +41,7 @@ import {
 })
 export class FileUploadComponent implements ControlValueAccessor, Validator {
   @Input()
-  requireFiletype: string | null = null;
+  requiredFileType: string | null = null;
   fileName: string | null = null;
   isDisabled: boolean = false;
   uploadPercentage: number = 0;
@@ -57,7 +57,15 @@ export class FileUploadComponent implements ControlValueAccessor, Validator {
 
   onFileSelected(event: any) {
     const selectedFile = event.target.files[0];
-    if (selectedFile) {
+    const isValidFileType =
+      this.requiredFileType?.match(selectedFile.name.split('.')[1]) ||
+      !this.requiredFileType;
+    if (!isValidFileType) {
+      this.onChange('');
+      this.onValidatorChange();
+      return;
+    }
+    if (selectedFile && isValidFileType) {
       this.fileName = selectedFile.name;
       const filePath = `recipes/${crypto.randomUUID()}/${this.fileName}`;
       const storageRef = ref(this.storage, filePath);
@@ -89,7 +97,6 @@ export class FileUploadComponent implements ControlValueAccessor, Validator {
     if (this.isFileUploadSuccessfull) {
       const storageRef = ref(this.storage, this.fileUrl!);
       deleteObject(storageRef);
-      alert();
     }
   }
 
@@ -119,7 +126,7 @@ export class FileUploadComponent implements ControlValueAccessor, Validator {
       if (this.isFileUploadSuccessfull) return null;
 
       let errors: ValidationErrors = {
-        requiredFileType: this.requireFiletype,
+        requiredFileType: this.requiredFileType,
       };
 
       if (this.fileUploadError) {

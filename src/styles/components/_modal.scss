@@ -1,5 +1,11 @@
 .modal {
-  animation: slide-to-bottom 300ms ease;
+  .modal-slide-in-bottom {
+    animation: slide-in-bottom 300ms ease;
+  }
+
+  .modal-slide-in-left {
+    animation: slide-in-left 300ms ease;
+  }
 
   .modal-400 {
     max-width: 400px !important;
@@ -15,11 +21,9 @@
     }
   }
 
-  .modal-left {
+  .modal-right {
     margin: 0px !important;
     margin-left: auto !important;
-
-    animation: slide-in-left 150ms ease !important;
 
     & .modal-content {
       min-height: 100vh !important;

@@ -3,19 +3,21 @@
   flex-direction: column;
   align-items: center;
   padding: 10px;
+  padding-bottom: unset;
 
   background: white;
   border-radius: 4px;
   box-shadow: 0px 2px 8px rgba($color: #000000, $alpha: 0.2);
 
   & .user-image {
-    border-radius: 4px;
-    width: 150px;
-    height: 150px;
+    width: 180px;
+    height: 180px;
     object-fit: cover;
+    border-radius: 4px;
   }
 
   & .user-details {
+    margin-bottom: 10px;
     & .user-bio {
       display: flex;
       flex-direction: column;
@@ -36,6 +38,7 @@
 
   .user-navbar {
     width: 100%;
+    border-top: 1px solid rgb(0, 0, 0, 0.05);
 
     & .navbar-nav {
       display: flex;
@@ -49,25 +52,26 @@
 
         & .nav-link {
           cursor: pointer;
-          padding: 8px;
+          padding: 10px;
 
           &:hover {
             border-radius: 4px;
-            background-color: #ffc107;
+            background-color: #fdecaf;
           }
         }
 
         .active {
-          // box-shadow: 0 2px 0 #ffc107;
+          background-color: #fdf2cc;
+
           &::after {
             content: " ";
             display: block;
             position: absolute;
-            bottom: -8px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
             width: 20px;
-            height: 12px;
+            height: 8px;
             background-color: #ffc107;
             clip-path: polygon(50% 0, 0 100%, 100% 100%);
 
@@ -80,7 +84,8 @@
 
   @media (min-width: 700px) {
     flex-direction: row;
-    align-items: center;
+    align-items: unset;
+    padding: unset;
 
     div:has(.user-details) {
       width: 100%;
@@ -94,6 +99,10 @@
       justify-content: space-between;
       align-items: baseline;
 
+      & .user-image {
+        border-radius: 4px 0 0 4px;
+      }
+
       & .user-bio {
         align-items: start;
         text-align: left;
@@ -101,6 +110,8 @@
     }
 
     & .user-navbar {
+      margin-top: auto;
+
       & .navbar-nav {
         justify-content: start;
       }

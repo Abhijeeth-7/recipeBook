@@ -49,7 +49,6 @@ export class RecipeService
     const queryConditions: any = [orderBy('likes', params.sort as any)];
 
     if (params.pageSize) {
-      console.log(params.pageNumber);
       params.pageNumber > 1 &&
         queryConditions.push(startAfter(this.lastDocRef));
       queryConditions.push(limit(params.pageSize));

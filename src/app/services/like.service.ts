@@ -29,7 +29,8 @@ export class LikeService extends FirebaseAPiService {
       transaction.update(recipeRef, { likes: updatesLikesCount });
       this.transactionResult = this.addDoc(
         likesCollectionRef,
-        newlikeObject
+        newlikeObject,
+        false
       ).subscribe();
     });
   }
@@ -44,7 +45,7 @@ export class LikeService extends FirebaseAPiService {
       const updatesLikesCount = recipeDoc.data()['likes'] - 1;
       transaction.update(recipeRef, { likes: updatesLikesCount });
 
-      this.deleteDoc(['Likes', likeId]);
+      this.deleteDoc(['Likes', likeId], false).subscribe();
       this.transactionResult = true;
     });
   }

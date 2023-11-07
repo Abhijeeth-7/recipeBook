@@ -2,6 +2,7 @@
   type="file"
   class="d-none"
   (change)="onFileSelected($event)"
+  [accept]="requiredFileType"
   #fileUpload
 />
 <div (click)="onClicked(fileUpload)">

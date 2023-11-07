@@ -59,29 +59,30 @@ export class RecipeComponent implements OnInit, AfterViewInit {
   @Input() recipeIds: string[] = [];
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
-  authorImgUrl: any;
-  authorName: any;
-  currentUser: any;
   @ViewChild('likeButton') set likeButton(likeButtonRef: ElementRef) {
     if (likeButtonRef) {
       this.setLikeButtomDebounce(likeButtonRef);
     }
   }
 
+  isLastPageReached: boolean = false;
   isliked: boolean = false;
   searchTerm: string = '';
   recipeDetail: RecipeDetail | undefined;
   recipeList: Array<RecipeDetail> = [];
-  filteredRecipeList: Array<RecipeDetail> = [];
   userId: string = '';
   likeId: string | null = null;
   bookmark: Bookmark | undefined;
   currentPage: number = 0;
   isRequestInProgress: boolean = false;
+  isRecipeDetailLoading: boolean = false;
   isSortedAscending: boolean = true;
   selectedTime: string = 'all';
   isMobileView: boolean = false;
   isRecipeListShown: boolean = true;
+  authorImgUrl: any;
+  authorName: any;
+  currentUser: any;
   TimeFilterOptions = [
     { value: 'all', title: 'All' },
     { value: '<=30', title: '30 mins or less' },
@@ -128,7 +129,6 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         this.searchTerm = searchTerm;
         this.currentPage = 0;
         this.recipeList = [];
-        this.filteredRecipeList = [];
         this.getRecipes();
       });
   }
@@ -150,9 +150,11 @@ export class RecipeComponent implements OnInit, AfterViewInit {
   }
 
   userBookmarks() {
-    this.bookmarkService.getBookmark(this.userId).subscribe((bookmark) => {
-      this.bookmark = new Bookmark(bookmark);
-    });
+    this.bookmarkService
+      .getBookmark(this.currentUser.userId)
+      .subscribe((bookmark) => {
+        this.bookmark = new Bookmark(bookmark);
+      });
   }
 
   isRecipeBookmarked(recipeId: string) {
@@ -164,44 +166,42 @@ export class RecipeComponent implements OnInit, AfterViewInit {
   getRecipes() {
     if (this.isRequestInProgress) return;
 
-    this.isRequestInProgress = true;
-    const paginationQuery = new PaginationQuery({
-      searchTerm: this.searchTerm,
-      pageNumber: this.currentPage + 1,
-      pageSize: 5,
-      sort: this.isSortedAscending ? 'asc' : 'desc',
-      timeFilterValue: this.selectedTime == 'all' ? null : this.selectedTime,
-      queryData: {
-        recipeIds: this.recipeIds,
-        authorId: this.userId,
-      },
-    });
+    if (!this.isLastPageReached) {
+      this.isRequestInProgress = true;
+      const paginationQuery = new PaginationQuery({
+        searchTerm: this.searchTerm,
+        pageNumber: this.currentPage + 1,
+        pageSize: 5,
+        sort: this.isSortedAscending ? 'asc' : 'desc',
+        timeFilterValue: this.selectedTime == 'all' ? null : this.selectedTime,
+        queryData: {
+          recipeIds: this.recipeIds,
+          authorId: this.userId,
+        },
+      });
 
-    this.recipieService.getRecipes(paginationQuery).subscribe((data) => {
-      this.recipeList.push(...data);
-      this.recipeList.forEach(
-        (recipe) => (recipe.isBookmarked = this.isRecipeBookmarked(recipe.id!))
-      );
-      this.filteredRecipeList.push(...data);
-      if (this.filteredRecipeList.length && !this.isMobileView) {
-        this.openRecipeDetails(this.filteredRecipeList[0].id);
-      }
-      this.currentPage++;
-      this.isRequestInProgress = false;
-    });
+      this.recipieService.getRecipes(paginationQuery).subscribe((data) => {
+        this.isLastPageReached = data.length <= paginationQuery.pageSize;
+        data.forEach((recipe) => {
+          recipe.isBookmarked = this.isRecipeBookmarked(recipe.id!);
+          this.recipeList.push(recipe);
+        });
+        this.currentPage++;
+        this.isRequestInProgress = false;
+      });
+    }
   }
 
   toggleSort() {
     this.isSortedAscending = !this.isSortedAscending;
     this.recipeList = [];
-    this.filteredRecipeList = [];
     this.currentPage = 0;
     this.getRecipes();
   }
 
   filterRecipesByTime() {
-    this.filteredRecipeList = [];
     this.recipeList = [];
+    this.recipeDetail = undefined;
     this.currentPage = 0;
     this.getRecipes();
   }
@@ -211,7 +211,7 @@ export class RecipeComponent implements OnInit, AfterViewInit {
       .pipe(
         tap((_) => {
           this.isliked = !this.isliked;
-          this.recipeDetail!.likes += 1 * (this.isliked ? 1 : -1);
+          this.recipeDetail!.likes += this.isliked ? 1 : -1;
         }),
         debounceTime(1000)
       )
@@ -236,7 +236,6 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         .removeLike(this.likeId, this.recipeDetail?.id!)
         .subscribe((result) => {
           this.likeId = null;
-          this.recipeDetail!.likes++;
         });
     }
   }
@@ -266,23 +265,21 @@ export class RecipeComponent implements OnInit, AfterViewInit {
 
   openRecipeDetails(recipeId?: string) {
     this.isRecipeListShown = false;
+    this.isRecipeDetailLoading = true;
     if (recipeId) {
-      this.recipeDetail = this.filteredRecipeList.find(
-        (r) => r.id === recipeId
-      );
-      forkJoin([]);
-      this.userDetailService
-        .getUserByAppId(this.recipeDetail!.authorId)
-        .subscribe((user) => {
-          this.authorName = user.name;
-          this.authorImgUrl = user.profileImageUrl;
-        });
-      this.likeService
-        .getUserLike(this.userId, recipeId)
-        .subscribe((data: any) => {
-          this.likeId = data[0]?.id;
-          this.isliked = !!this.likeId;
-        });
+      this.recipeDetail = this.recipeList.find((r) => r.id === recipeId);
+      forkJoin([
+        this.userDetailService.getUserByAppId(this.recipeDetail!.authorId),
+        this.likeService.getUserLike(this.userId, recipeId),
+      ]).subscribe((data) => {
+        const user = data[0];
+        const likeObj = data[1];
+        this.authorName = user.name;
+        this.authorImgUrl = user.profileImageUrl;
+        this.likeId = likeObj[0]?.id;
+        this.isliked = !!this.likeId;
+        this.isRecipeDetailLoading = false;
+      });
     }
   }
 
@@ -304,7 +301,7 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         userId: this.userId,
         onSave: (newRecipe) => {
           this.recipeList.push(newRecipe);
-          this.recipeDetail = this.filteredRecipeList[0];
+          this.getRecipes();
         },
       },
     });
@@ -320,12 +317,10 @@ export class RecipeComponent implements OnInit, AfterViewInit {
         recipeDetails: this.recipeDetail,
         onSave: (recipeDetail: RecipeDetail) => {
           recipeDetail.id = this.recipeDetail?.id;
-          let ind = this.recipeList.findIndex((r) => r.id === recipeDetail.id);
-          this.recipeList.splice(ind, 1, recipeDetail);
-          ind = this.filteredRecipeList.findIndex(
+          const index = this.recipeList.findIndex(
             (r) => r.id === recipeDetail.id
           );
-          this.filteredRecipeList.splice(ind, 1, recipeDetail);
+          this.recipeList.splice(index, 1, recipeDetail);
           this.recipeDetail = recipeDetail;
         },
       },
@@ -333,40 +328,36 @@ export class RecipeComponent implements OnInit, AfterViewInit {
     this.bsModalService.show(ManageRecipeFormComponent, modalConfig);
   }
 
-  deleteRecipe() {
+  openDeletRecipeModal() {
     const modalConfig: ModalOptions = {
       class: 'modal-sm',
       initialState: {
         title: `Delete ${this.recipeDetail?.title}`,
         message: `Are you sure you want to delete "${this.recipeDetail?.title}" recipe ?`,
         confirmButtonText: `Yes, Delete`,
-        onConfirm: (args: any) => {
-          this.recipieService
-            .deleteRecipe(this.recipeDetail?.id!, this.recipeDetail?.imageUrl!)
-            .subscribe({
-              next: (res) => {
-                this.recipeList = this.recipeList.filter(
-                  (r) => r.id !== this.recipeDetail?.id
-                );
-                this.filteredRecipeList = this.filteredRecipeList.filter(
-                  (r) => r.id !== this.recipeDetail?.id
-                );
-                this.recipeDetail = this.filteredRecipeList[0];
-                this.toastrService.success(
-                  'Success',
-                  'Recipe deleted succefully'
-                );
-              },
-              error: (error) => {
-                this.toastrService.error(
-                  'Error',
-                  'Error while deleting the recipe, Try again'
-                );
-              },
-            });
-        },
+        onConfirm: (args: any) => this.deleteRecipe(),
       },
     };
     this.bsModalService.show(ConfirmDialogComponent, modalConfig);
+  }
+
+  deleteRecipe() {
+    this.recipieService
+      .deleteRecipe(this.recipeDetail?.id!, this.recipeDetail?.imageUrl!)
+      .subscribe({
+        next: (res) => {
+          this.recipeList = this.recipeList.filter(
+            (r) => r.id !== this.recipeDetail?.id
+          );
+          this.recipeDetail = undefined;
+          this.toastrService.success('Success', 'Recipe deleted succefully');
+        },
+        error: (error) => {
+          this.toastrService.error(
+            'Error',
+            'Error while deleting the recipe, Try again'
+          );
+        },
+      });
   }
 }

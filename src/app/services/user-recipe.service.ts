@@ -1,11 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Query } from '@angular/core';
 import { orderBy, query, where } from '@angular/fire/firestore';
 import { RecipeDetail } from '../models/recipe.models';
 import { IRecipeService } from './IRecipe-service.service';
 import { FirebaseAPiService } from './firebase-api.service';
 import { PaginationQuery } from '../models/pagination-query.model';
-import { tap } from 'rxjs';
-import { collection, doc, documentId } from 'firebase/firestore';
+import { Observable, map, mergeMap, of, tap } from 'rxjs';
+import {
+  collection,
+  doc,
+  documentId,
+  limit,
+  startAfter,
+} from 'firebase/firestore';
+import { Bookmark } from '../models/bookmark.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,23 +21,57 @@ export class UserRecipeService
   extends FirebaseAPiService
   implements IRecipeService
 {
-  getRecipes(params: PaginationQuery) {
+  lastDocRef: any;
+
+  getRecipes(params: PaginationQuery): Observable<RecipeDetail[]> {
+    let searchCall, docIds;
+    searchCall = of(['']);
+    if (params.searchTerm.length || params.timeFilterValue) {
+      const recipeSearchStrings = this.getCollectionGroupRef(['SearchStrings']);
+      const condtions = [];
+      if (params.searchTerm.length) {
+        condtions.push(
+          where(
+            'substrings',
+            'array-contains',
+            params.searchTerm.toLocaleLowerCase()
+          )
+        );
+      }
+      if (params.timeFilterValue) {
+        condtions.push(
+          where('timeFilterValues', 'array-contains', params.timeFilterValue)
+        );
+      }
+      const serachQuery = query(recipeSearchStrings, ...condtions);
+      searchCall = this.getParentDocumentIds(serachQuery);
+    }
+
     const recipies = this.getCollectionRef(['Recipes']);
+    const queryConditions: any = [orderBy('likes', params.sort as any)];
 
-    const queryConditions: any = [
-      orderBy('title'),
-      where('authorId', '==', params.queryData.authorId),
-      where('title', '>=', params.searchTerm.toLowerCase()),
-      where('title', '<=', params.searchTerm.toLowerCase() + '\uf8ff'),
-      orderBy('likes'),
-    ];
+    if (params.pageSize) {
+      params.pageNumber > 1 &&
+        queryConditions.push(startAfter(this.lastDocRef));
+      queryConditions.push(limit(params.pageSize));
+    }
 
-    // if (pageSize) {
-    //   queryConditions.push(limit(pageSize));
-    // }
+    this.lastDocRef = params.pageNumber == 1 ? null : this.lastDocRef;
 
-    const recipiesQuery = query(recipies, ...queryConditions);
-    return this.getDocs<RecipeDetail>(recipiesQuery);
+    return searchCall.pipe(
+      mergeMap((ids) => {
+        docIds = ids.length ? ids : ['-'];
+        (params.searchTerm || params.timeFilterValue) &&
+          queryConditions.push(where('recipeId', 'in', docIds));
+        const paginationQuery = query(recipies, ...queryConditions);
+        return this.getDocsUsingPagination<RecipeDetail>(paginationQuery).pipe(
+          map((result: any) => {
+            this.lastDocRef = result.lastDocRef;
+            return result.data;
+          })
+        );
+      })
+    );
   }
 
   createRecipie(newRecipe: RecipeDetail) {
@@ -63,20 +104,53 @@ export class UserRecipeService
     this.deleteFile(recipeImgUrl);
     return this.deleteDoc(['Recipes', recipeId]).pipe(
       tap((_) => {
-        this.deleteDoc([
-          'Recipes',
-          recipeId,
-          'SearchStrings',
-          recipeId + 'substrings',
-        ]);
-        this.deleteDoc([
-          'Recipes',
-          recipeId,
-          'SearchStrings',
-          recipeId + 'timeFilterValues',
-        ]);
+        this.deletSearchStrings(recipeId);
+        this.deleteLikesOnRecipe(recipeId);
+        this.removeFromBookmarks(recipeId);
       })
     );
+  }
+
+  private deletSearchStrings(recipeId: string) {
+    this.deleteDoc([
+      'Recipes',
+      recipeId,
+      'SearchStrings',
+      recipeId + 'substrings',
+    ]);
+    this.deleteDoc([
+      'Recipes',
+      recipeId,
+      'SearchStrings',
+      recipeId + 'timeFilterValues',
+    ]);
+  }
+
+  private deleteLikesOnRecipe(recipeId: string) {
+    const likesCollectionRef = this.getCollectionRef(['Likes']);
+    const deleteQuery = query(
+      likesCollectionRef,
+      where('recipeId', '==', recipeId)
+    );
+    this.deleteDocsByQuery(deleteQuery);
+  }
+
+  private removeFromBookmarks(recipeId: string) {
+    const likesCollectionRef = this.getCollectionRef(['Bookmarks']);
+    this.getDocs<Bookmark>(query(likesCollectionRef)).subscribe((bookmarks) => {
+      bookmarks.forEach((bookmark) => {
+        if (bookmark.collections.some((c) => c.recipeIds.includes(recipeId))) {
+          bookmark.collections.forEach(
+            (col) =>
+              (col.recipeIds = col.recipeIds.filter((id) => id !== recipeId))
+          );
+          this.updateDoc(
+            this.getDocRef(['Bookmarks', `${bookmark.bookmarkId!}`]),
+            bookmark
+          ).subscribe();
+        }
+      });
+    });
   }
 
   private setSubstringsDoc(recipeId: string, title: string) {

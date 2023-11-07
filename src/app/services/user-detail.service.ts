@@ -11,6 +11,7 @@ import {
   pipe,
   switchMap,
 } from 'rxjs';
+import { User } from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,15 @@ export class UserDetailService extends FirebaseAPiService {
       this.getCount(likesQuery),
       this.getCount(recipesQuery),
     ]).pipe(map((data) => ({ likesCount: data[0], recipesCount: data[1] })));
+  }
+
+  createNewUser(userState: User, appUserId: string) {
+    this.setDoc(['Users', userState.uid], {
+      userId: appUserId,
+      name: userState.displayName,
+      bio: '',
+      profileImageUrl: userState.photoURL,
+    }).subscribe();
   }
 
   updateUserDetails(userDetails: any) {

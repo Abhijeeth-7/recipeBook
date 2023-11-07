@@ -3,7 +3,7 @@
     <div class="user-img-and-stats">
       <img class="user-image" [src]="userDetails.profileImageUrl" />
     </div>
-    <div>
+    <div class="d-flex flex-column flex-wrap">
       <div class="user-details">
         <div class="user-bio">
           <div class="d-flex align-items-baseline">
@@ -24,15 +24,13 @@
         </div>
 
         <div class="user-stats">
-          <div class="d-flex flex-column align-items-center">
-            <label>Likes</label>
-            <span class="bi bi-heart-fill fs-24 text-orangered"></span>
-            <label>{{ userDetails.totalLikes }}</label>
+          <div class="d-flex align-items-center">
+            <span class="bi bi-heart-fill fs-20 text-orangered"></span>
+            <label class="ml-8px">{{ userDetails.totalLikes }} Likes</label>
           </div>
-          <div class="d-flex flex-column align-items-center mx-30px">
-            <label>Recipes</label>
-            <span class="bi bi-cloud-fog-fill fs-24 text-primary"></span>
-            <label>{{ userDetails.totalRecipes }}</label>
+          <div class="d-flex align-items-center mx-30px">
+            <span class="bi bi-cloud-fog-fill fs-20 text-primary"></span>
+            <label class="ml-8px">{{ userDetails.totalRecipes }} Recipes</label>
           </div>
         </div>
       </div>

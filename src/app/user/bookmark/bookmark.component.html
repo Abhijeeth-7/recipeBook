@@ -1,7 +1,9 @@
 <div>
   <ng-container *ngIf="!selectedCollection">
-    <div class="d-flex justify-content-between align-items-center">
-      <h4 class="mt-20px ml-10px">Bookmarks</h4>
+    <div
+      class="d-flex justify-content-between align-items-center mt-20px ml-10px"
+    >
+      <h4>Bookmarks</h4>
       <button class="btn btn-sm btn-primary" (click)="addNewCollection()">
         <i class="bi bi-plus-circle mx-4px"></i>
         <span>Create collection</span>
@@ -16,20 +18,20 @@
                 <p>Add New Collection</p>
                 <input
                   type="text"
-                  class="form-control-sm"
+                  class="form-control-sm mb-10px"
                   placeholder="Collection Name"
                   title="press enter to add the collection"
                   [(ngModel)]="newCollectionName"
                 />
               </div>
               <button
-                class="btn btn-sm btn-primary mt-10px mr-10px"
+                class="btn btn-sm btn-primary mr-10px"
                 (click)="createNewCollection()"
               >
                 Add
               </button>
               <button
-                class="btn btn-sm btn-secondary mt-10px"
+                class="btn btn-sm btn-secondary"
                 (click)="isAddingCollection = false"
               >
                 Discard
@@ -92,13 +94,13 @@
                   <p>Edit Collection Name</p>
                   <input
                     type="text"
-                    class="form-control-sm"
+                    class="form-control-sm mb-10px"
                     [(ngModel)]="newCollectionName"
                     (keydown.enter)="editCollectionName(collection)"
                   />
                 </div>
                 <button
-                  class="btn btn-sm btn-primary mt-10px mr-10px"
+                  class="btn btn-sm btn-primary mr-10px"
                   (click)="
                     editCollectionName(collection); $event.stopPropagation()
                   "
@@ -106,17 +108,21 @@
                   Update
                 </button>
                 <button
-                  class="btn btn-sm btn-secondary mt-10px"
+                  class="btn btn-sm btn-secondary"
                   (click)="editingCollectionAt = null; $event.stopPropagation()"
                 >
                   Discard
                 </button>
               </ng-container>
               <ng-container *ngIf="editingCollectionAt != i">
-                <p>
-                  {{ collection.name }}
+                <h5>{{ collection.name }}</h5>
+                <p class="mt-20px">
+                  {{
+                    collection.recipeCount
+                      ? collection.recipeCount + " Recipes"
+                      : "No Recipes Found"
+                  }}
                 </p>
-                <p>{{ collection.recipeCount }}</p>
               </ng-container>
             </div>
           </div>

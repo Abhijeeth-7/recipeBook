@@ -22,9 +22,10 @@ import {
   where,
 } from '@angular/fire/firestore';
 import { DocumentData } from 'rxfire/firestore/interfaces';
-import { Observable, first, from, map, mergeMap, tap } from 'rxjs';
+import { Observable, first, from, map, mergeMap, switchMap, tap } from 'rxjs';
 import { LoaderService } from './loading.service';
 import { deleteObject, ref, Storage } from '@angular/fire/storage';
+import { Bookmark } from '../models/bookmark.model';
 
 interface PaginatedResult<T = any> {
   data: T[];
@@ -126,22 +127,31 @@ export class FirebaseAPiService {
     );
   }
 
-  addDoc(collectionRef: CollectionReference<any>, objectToAdd: any) {
-    this.loaderService.showLoader();
+  addDoc(
+    collectionRef: CollectionReference<any>,
+    objectToAdd: any,
+    showLoader: boolean = true
+  ) {
+    showLoader && this.loaderService.showLoader();
     return from(
       addDoc(collectionRef, JSON.parse(JSON.stringify(objectToAdd)))
     ).pipe(tap((_) => this.loaderService.hideLoader()));
   }
 
-  updateDoc(collectionRef: DocumentReference<any>, updatedObject: any) {
+  updateDoc(
+    collectionRef: DocumentReference<any>,
+    updatedObject: any,
+    showLoader: boolean = true
+  ) {
+    showLoader && this.loaderService.showLoader();
     this.loaderService.showLoader();
     return from(updateDoc(collectionRef, updatedObject)).pipe(
       tap((_) => this.loaderService.hideLoader())
     );
   }
 
-  deleteDoc(path: string[]) {
-    this.loaderService.showLoader();
+  deleteDoc(path: string[], showLoader: boolean = true) {
+    showLoader && this.loaderService.showLoader();
     return from(
       deleteDoc(doc(this.firestoreDB, path[0], ...path.slice(1)))
     ).pipe(tap((_) => this.loaderService.hideLoader()));
@@ -160,5 +170,16 @@ export class FirebaseAPiService {
   deleteFile(url: string) {
     const storageRef = ref(this.storage, url);
     deleteObject(storageRef);
+  }
+
+  deleteDocsByQuery(query: Query) {
+    return from(getDocs(query)).pipe(
+      first(),
+      tap((refs) => {
+        if (!refs.empty) {
+          refs.docs.map((doc) => deleteDoc(doc.ref));
+        }
+      })
+    );
   }
 }

@@ -36,7 +36,6 @@ export class UserDetailComponent implements OnInit {
   };
   constructor(
     private userDetailService: UserDetailService,
-    private authService: AuthorizationService,
     private activatedRoute: ActivatedRoute,
     private bsModalService: BsModalService,
     private tostrService: ToastrService
@@ -72,7 +71,8 @@ export class UserDetailComponent implements OnInit {
 
   openUserDetailsModal() {
     this.modalRef = this.bsModalService.show(this.userDetailsModal, {
-      class: 'modal-left modal-400',
+      class: 'modal-right modal-400 modal-slide-in-left',
+      ignoreBackdropClick: true,
     });
   }
 

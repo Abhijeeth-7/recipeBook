@@ -11,6 +11,10 @@ import { Auth, User, authState } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { FirebaseAPiService } from './firebase-api.service';
 import { UserDetailService } from './user-detail.service';
+import { BookmarkService } from './bookmark.service';
+import { Bookmark, BookmarkCollection } from '../models/bookmark.model';
+import { OnboardingService } from './onboarding.service';
+import { LoaderService } from './loading.service';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +29,8 @@ export class AuthorizationService {
     private auth: Auth,
     private firebaseAPIService: FirebaseAPiService,
     private userDetailService: UserDetailService,
+    private onboardingService: OnboardingService,
+    private loaderSerive: LoaderService,
     private router: Router
   ) {
     this.currentUser$ = authState(this.auth).pipe(
@@ -50,31 +56,28 @@ export class AuthorizationService {
   }
 
   onLoginSuccessful(_result: boolean) {
+    this.loaderSerive.showLoader();
     authState(this.auth)
       .pipe(first())
       .subscribe((userState) => {
         if (userState) {
-          this.createNewUser(userState);
+          this.checkNewUser(userState);
           this.initiateUserSession();
           this.setCurrentUserDetails(userState?.uid!);
+          this.loaderSerive.hideLoader();
+          this.router.navigateByUrl('/home');
         }
       });
 
-    this.router.navigateByUrl('/home');
     return true;
   }
 
-  private createNewUser(userState: User) {
+  private checkNewUser(userState: User) {
     this.firebaseAPIService
       .getDocByRef(['Users', userState.uid])
       .subscribe((doc) => {
         if (!doc.userId) {
-          this.firebaseAPIService.setDoc(['Users', userState.uid], {
-            userId: crypto.randomUUID(),
-            name: userState.displayName,
-            bio: '',
-            profileImageUrl: userState.photoURL,
-          });
+          this.onboardingService.initateUserOnBoarding(userState);
         }
       });
   }

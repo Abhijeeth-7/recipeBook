@@ -21,13 +21,6 @@
           {{ isSortedAscending ? "Least" : "Most" }} popular first
         </button>
 
-        <!-- <div class="sort-selector" >
-          <span class="bi bi-arrow-down-up"></span>
-          <label class="ml-10px text-truncate">
-            {{ isSortedAscending ? "Least" : "Most" }} popular first
-          </label>
-        </div> -->
-
         <select
           [(ngModel)]="selectedTime"
           (ngModelChange)="filterRecipesByTime()"
@@ -53,7 +46,7 @@
     >
       <div
         class="recipe-card"
-        *ngFor="let recipe of filteredRecipeList"
+        *ngFor="let recipe of recipeList"
         [class.recipe-card-selected]="recipeDetail?.id == recipe.id"
         (click)="openRecipeDetails(recipe.id)"
       >
@@ -63,12 +56,13 @@
           <div class="d-flex align-items-center w-100">
             <h6 class="fs-16 text-truncate">{{ recipe.title }}</h6>
             <i
-              class="bi fs-20 ms-auto"
+              class="bi bi-clickable fs-20 ms-auto"
               [ngClass]="
                 recipe.isBookmarked
                   ? 'bi-bookmark-fill text-primary'
                   : 'bi-bookmark'
               "
+              (click)="openAddToBookmarkModal(); $event.stopPropagation()"
             ></i>
           </div>
           <div class="d-flex w-100">
@@ -78,7 +72,10 @@
                 {{ recipe.timeInMinutes | time }}
               </span>
             </div>
-            <div class="d-flex align-items-center">
+            <div
+              class="d-flex align-items-center"
+              (click)="$event.stopPropagation()"
+            >
               <span class="bi bi-heart-fill text-orangered fs-20 mr-8px"></span>
               <span class="text-truncate">{{ recipe.likes }}</span>
             </div>
@@ -90,10 +87,13 @@
         [ngTemplateOutlet]="cardShimmer"
       ></ng-template>
       <div
-        class="w-100"
-        *ngIf="!filteredRecipeList.length && !isRequestInProgress"
+        class="w-100 text-center mt-20px"
+        *ngIf="!recipeList.length && !isRequestInProgress"
       >
-        <p class="text-secondary text-center p-30pxF">No Results found!!</p>
+        <img src="../../../assets/NoResultsFound1.svg" width="20%" />
+        <p class="mt-10px">
+          No {{ searchTerm.length ? "Results" : "Recipes" }} found !!
+        </p>
       </div>
     </div>
   </div>
@@ -110,17 +110,27 @@
     </button>
 
     <div class="recipe-detail-container">
-      <ng-container *ngIf="recipeDetail; else noRecipeTemplate">
+      <ng-template
+        *ngIf="isRecipeDetailLoading"
+        [ngTemplateOutlet]="recipeDetailShimmer"
+      ></ng-template>
+      <ng-container
+        *ngIf="!isRecipeDetailLoading && recipeDetail; else noRecipeTemplate"
+      >
         <div class="d-flex">
           <div>
             <h1>
               {{ recipeDetail.title }}
             </h1>
-            <div
-              class="d-flex mb-10px align-items-center cursor-pointer"
-              [routerLink]="['/user', recipeDetail.authorId]"
-            >
-              <span>by {{ authorName }}</span>
+            <div class="d-flex mb-10px align-items-center cursor-pointer">
+              <span
+                >by
+                <a
+                  [routerLink]="['/user', recipeDetail.authorId]"
+                  class="text-secondary"
+                  >{{ authorName }}</a
+                ></span
+              >
               <img
                 class="rounded-circle ml-8px"
                 [src]="authorImgUrl"
@@ -139,7 +149,10 @@
             >
               Edit
             </button>
-            <button class="btn btn-sm btn-danger" (click)="deleteRecipe()">
+            <button
+              class="btn btn-sm btn-danger"
+              (click)="openDeletRecipeModal()"
+            >
               Delete
             </button>
           </div>
@@ -261,17 +274,70 @@
   </div>
 </ng-template>
 
+<ng-template #recipeDetailShimmer>
+  <div class="d-flex flex-column ml-10px">
+    <ngx-skeleton-loader
+      animation="progress-dark"
+      [theme]="{ width: '70%', 'border-radius': '0', height: '30px' }"
+    >
+    </ngx-skeleton-loader>
+    <ngx-skeleton-loader
+      animation="progress-dark"
+      [theme]="{ width: '40%', 'border-radius': '0', height: '12px' }"
+    ></ngx-skeleton-loader>
+    <ng-container *ngFor="let item of [1, 2, 3]" class="mt-20px">
+      <ngx-skeleton-loader
+        animation="progress-dark"
+        [theme]="{ width: '90%', 'border-radius': '0', height: '12px' }"
+      ></ngx-skeleton-loader>
+    </ng-container>
+  </div>
+  <div class="recipe-section-col-2">
+    <ngx-skeleton-loader
+      appearance="circle"
+      animation="progress-dark"
+      [theme]="{ 'border-radius': '4px', height: '350px', width: '100%' }"
+    ></ngx-skeleton-loader>
+    <div class="bg-white border text-center pt-20px">
+      <ngx-skeleton-loader
+        animation="progress-dark"
+        [theme]="{ width: '150px', 'border-radius': '0', height: '20px' }"
+      ></ngx-skeleton-loader>
+      <div class="my-10px">
+        <ngx-skeleton-loader
+          *ngFor="let item of [1, 2, 3, 4, 5, 6]"
+          animation="progress-dark"
+          [theme]="{ width: '300px', 'border-radius': '0', height: '12px' }"
+        >
+        </ngx-skeleton-loader>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
 <ng-template #noRecipeTemplate>
   <div
-    class="d-flex flex-column justify-content-center align-items-center h-100 text-secondary"
+    class="d-flex flex-column justify-content-center align-items-center h-100"
   >
-    <ng-container *ngIf="!filteredRecipeList.length && !isRequestInProgress">
-      <h3>Oops, Looks like there are no matches</h3>
-      <p>Click here if you wish to add that recipe</p>
+    <ng-container *ngIf="!recipeList.length">
+      <img src="../../../assets/NoResultsFound.svg" width="60%" />
+      <h3 *ngIf="searchTerm.length">Oops, Looks like there are no matches</h3>
+      <h3 *ngIf="!searchTerm.length">
+        Oops, Looks like you haven't added any recipes yet!
+      </h3>
+      <p>
+        Use Add Recipe button
+        {{
+          searchTerm.length
+            ? ", if you wish to add that recipe"
+            : "to add a recipe"
+        }}
+      </p>
     </ng-container>
-    <ng-container *ngIf="filteredRecipeList.length">
+    <ng-container *ngIf="recipeList.length">
+      <img src="../../../assets/select.svg" width="40%" />
       <h3>Please select a recipe</h3>
-      <p>click on a recipe from the list to view it in details</p>
+      <p>click on a recipe from the list to view it's details</p>
     </ng-container>
   </div>
 </ng-template>
