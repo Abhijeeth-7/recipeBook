@@ -129,10 +129,12 @@ label:has(+ .form-control) {
 
 .btn,
 .btn-3d {
+  margin-left: 4px;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
   box-shadow: 4px 4px #47474771;
   transition: all 150ms ease;
   transform: translate(-4px, -2px);
-  margin-left: 4px;
 
   &:hover {
     box-shadow: 4px 4px #000;
