@@ -1,27 +1,22 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import {
-  distinctUntilChanged,
-  first,
-  map,
-  switchMap,
-  tap,
-} from 'rxjs/operators';
+import { first, map, tap } from 'rxjs/operators';
 import { Auth, User, authState } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { FirebaseAPiService } from './firebase-api.service';
 import { UserDetailService } from './user-detail.service';
-import { BookmarkService } from './bookmark.service';
-import { Bookmark, BookmarkCollection } from '../models/bookmark.model';
 import { OnboardingService } from './onboarding.service';
 import { LoaderService } from './loading.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthorizationService {
-  currentUser$: Observable<User | null>;
+  private readonly guestAccId = environment.guestAccId;
 
+  isSignedInAsGuest: boolean = false;
+  currentUser$: Observable<User | null>;
   pictureUrl$: Observable<string | null> = of('');
   sessionExpirationTimer: any;
 
@@ -34,11 +29,15 @@ export class AuthorizationService {
     private router: Router
   ) {
     this.currentUser$ = authState(this.auth).pipe(
-      tap((user) => {
+      map((user) => {
         if (user) {
           this.initiateUserSession();
           this.setCurrentUserDetails(user?.uid!);
+        } else if (localStorage.getItem('sessionInfo')) {
+          this.onLoginAsGuest();
+          return <User>{};
         }
+        return null;
       })
     );
   }
@@ -53,6 +52,13 @@ export class AuthorizationService {
 
   setCurrentUserDetails(userId: string) {
     this.userDetailService.setCurrentUser(userId);
+  }
+
+  onLoginAsGuest() {
+    this.initiateUserSession();
+    this.isSignedInAsGuest = true;
+    this.userDetailService.setCurrentUser(this.guestAccId);
+    this.router.navigateByUrl('/home');
   }
 
   onLoginSuccessful(_result: boolean) {
@@ -118,6 +124,7 @@ export class AuthorizationService {
   logout() {
     this.auth.signOut();
     this.clearLogoutTimer();
+    localStorage.removeItem('sessionInfo');
     this.router.navigateByUrl('/login');
   }
 }

@@ -6,4 +6,6 @@ export const environment = {
     apiKey: 'AIzaSyD98yms6UB-mU6ZoOQujlsQPhs076gOpSw',
     authDomain: 'recipefinder-ab61e.firebaseapp.com',
     messagingSenderId: '44368111371',
-  },};
+  },
+  guestAccId: 'uxjUCV0ljVyhmbahi9Qg',
+};
