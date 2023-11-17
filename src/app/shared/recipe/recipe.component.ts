@@ -127,8 +127,7 @@ export class RecipeComponent implements OnInit, AfterViewInit {
       )
       .subscribe((searchTerm) => {
         this.searchTerm = searchTerm;
-        this.currentPage = 0;
-        this.recipeList = [];
+        this.resetCurrentPageDetails();
         this.getRecipes();
       });
   }
@@ -192,17 +191,21 @@ export class RecipeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  resetCurrentPageDetails() {
+    this.currentPage = 0;
+    this.isLastPageReached = false;
+    this.recipeList = [];
+  }
+
   toggleSort() {
     this.isSortedAscending = !this.isSortedAscending;
-    this.recipeList = [];
-    this.currentPage = 0;
+    this.resetCurrentPageDetails();
     this.getRecipes();
   }
 
   filterRecipesByTime() {
-    this.recipeList = [];
     this.recipeDetail = undefined;
-    this.currentPage = 0;
+    this.resetCurrentPageDetails();
     this.getRecipes();
   }
 

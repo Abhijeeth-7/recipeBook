@@ -26,7 +26,11 @@ export class UserRecipeService
   getRecipes(params: PaginationQuery): Observable<RecipeDetail[]> {
     let searchCall, docIds;
     searchCall = of(['']);
-    if (params.searchTerm.length || params.timeFilterValue) {
+    if (
+      params.searchTerm.length ||
+      params.timeFilterValue ||
+      params.queryData.authorId
+    ) {
       const recipeSearchStrings = this.getCollectionGroupRef(['SearchStrings']);
       const condtions = [];
       if (params.searchTerm.length) {
@@ -63,6 +67,11 @@ export class UserRecipeService
         docIds = ids.length ? ids : ['-'];
         (params.searchTerm || params.timeFilterValue) &&
           queryConditions.push(where('recipeId', 'in', docIds));
+
+        params.queryData.authorId &&
+          queryConditions.push(
+            where('authorId', '==', params.queryData.authorId)
+          );
         const paginationQuery = query(recipies, ...queryConditions);
         return this.getDocsUsingPagination<RecipeDetail>(paginationQuery).pipe(
           map((result: any) => {

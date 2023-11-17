@@ -162,7 +162,11 @@ export class ManageRecipeFormComponent implements OnInit {
       name: [ingredient ? ingredient.name : '', Validators.required],
       quantity: [
         ingredient ? ingredient.quantity : '',
-        [Validators.required, Validators.min(1), Validators.pattern('[0-9]+')],
+        [
+          Validators.required,
+          Validators.min(1),
+          Validators.pattern(/[0-9][~/-///0-9]*[ a-z]*/i),
+        ],
       ],
     });
 
